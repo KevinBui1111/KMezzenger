@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Chat";
+}
+
+<h2>Chat</h2>
+
+<div class="container">
+    <input type="text" id="message" />
+    <input type="button" id="sendmessage" value="Send" />
+    <input type="hidden" id="displayname" />
+    <div>
+        Contact list
+        <ul id="contactList"></ul>
+    </div>
+    Conversation
+    <ul id="discussion">
+    </ul>
+</div>
+@section CSS {
+<style type="text/css">
+    li.selected
+    {
+        border: 1px solid Red;
+    }
+</style>
+}
+@section JS {
+    <!--Script references. -->
+    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+    <!--Reference the SignalR library. -->
+    <!--SignalR script to update the chat page and send messages.--> 
+    <script type="text/javascript">
+        var chat;
+        $(document).ready(function () {
+
+            $('#contactList').on('click', 'li', onSelectContact);
+            // Reference the auto-generated proxy for the hub.  
+            chat = $.connection.chatHub;
+            // Create a function that the hub can call back to display messages.
+            chat.client.addNewMessageToPage = addNewMessageToPage;
+            // Create a function that the hub can call back to notify there is a new user connect.
+            chat.client.newUserConnect = newUserConnect;
+            // Create a function that the hub can call back to notify list of contact.
+            chat.client.onReceiveListContact = onReceiveListContact;
+
+            // Get the user name and store it to prepend to messages.
+            $('#displayname').val(prompt('Enter your name:', ''));
+            $('#message').focus();
+
+            // Start the connection.
+            $.connection.hub.qs = { 'username': $('#displayname').val() };
+            $.connection.hub.start().done(onConnected);
+
+            var tryingToReconnect = false;
+            $.connection.hub.reconnecting(function () { tryingToReconnect = true; });
+            $.connection.hub.reconnected(function () { tryingToReconnect = false; });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () { $.connection.hub.start(); }, 5000); // Restart connection after 5 seconds.
+            });
+        });
+        function notifyUserOfTryingToReconnect() {
+            console.log('trying to reconnect');
+        }
+        function onReceiveListContact(message) {
+            $('#contactList').empty();
+            $.each(message, function (key, value) {
+                newUserConnect(value, key);
+            });
+        }
+        function onSelectContact() {
+            $('#contactList li').removeClass('selected');
+            $(this).addClass('selected');
+        }
+        function newUserConnect(name, connection_id) {
+            // Add the message to the page.
+            var newLi = $('<li><strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(connection_id) + '</li>');
+            newLi.data('connection_id', connection_id);
+            $('#contactList').append(newLi);
+        }
+        function addNewMessageToPage(connection_id, name, message) {
+            // Add the message to the page. 
+            $('#discussion').append('<li><strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+        }
+        function onConnected() {
+            $('#sendmessage').click(send_message);
+        }
+        function send_message() {
+            var connection_id = $('#contactList li.selected').data('connection_id');
+            // Call the Send method on the hub.
+            chat.server.send(connection_id, $('#message').val());
+            // Clear text box and reset focus for next comment. 
+            $('#message').val('').focus();
+        }
+        // This optional function html-encodes messages for display in the page.
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}
