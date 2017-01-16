@@ -1,0 +1,61 @@
+﻿@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+body
+{
+    background-color: #EFEFEF;
+    /*font-size: .875em; 9pt;*/
+    font-family: 'Open Sans', Segoe UI, Tahoma, sans-serif;
+    margin: 0px;
+    padding: 0px;
+
+}
+a:link, a:visited {
+    color: RoyalBlue;
+    text-decoration: none;
+}
+#main {
+    background-color: White;
+    padding: 10px;
+}
+.header {
+    background-color: dodgerblue;
+    color: white;
+    padding: 5px;
+}
+.header a {
+    color: white;
+}
+.clearfix:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+.head-title {
+    float: left;
+}
+.userinfo {
+    float: right;
+}
+/*=================== element style ===================*/
+
+input[type="text"], input[type="password"], select, textarea {
+	font-family:inherit;
+	border: solid 1px #D8D8D8;
+	padding: 4px;
+}
+input[type="button"], input[type="submit"] {
+	font-family:inherit;
+    font-size:inherit;
+}
+/*=================== error style ===================*/
+input.error, select.error
+{
+    border: 1px solid #FF9A9A;
+    background-color: #FFEAEA;
+}
+input.error:focus, select.error:focus
+{
+    border-color: white;
+}
+span.error {
+    color:red;
+}

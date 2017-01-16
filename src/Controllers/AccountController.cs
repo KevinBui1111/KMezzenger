@@ -25,7 +25,12 @@ namespace KMezzenger.Controllers
             if (ModelState.IsValid)
             {
                 if (!UserRepository.ValidateUser(model.UserName, model.Password))
+                {
+                    ViewBag.error = "Wrong username or password, please try again!";
                     return View(model);
+                }
+
+                FormsAuthentication.SetAuthCookie(model.UserName, true);
 
                 if (!String.IsNullOrEmpty(returnUrl))
                     return Redirect(returnUrl);

@@ -5,41 +5,57 @@ using System.Web;
 using Microsoft.AspNet.SignalR;
 using System.Collections;
 using System.Threading.Tasks;
+using KMezzenger.DataAccess;
 
 namespace KMezzenger.Models
 {
     [AuthorizeClaims]
     public class ChatHub : Hub
     {
-        private static Dictionary<string, string> htUsers_ConIds = new Dictionary<string, string>(20);
-        public void registerConId(string userID)
+        private readonly static ConnectionMapping<string> _connections =
+            new ConnectionMapping<string>();
+
+        public void send_message(string who, string message, string message_id)
         {
-            htUsers_ConIds[userID] = Context.ConnectionId;
-        }
-        public void Send(string to_connectionID, string message)
-        {
-            var c = Context.User.Identity;
-            Clients.Client(to_connectionID).addNewMessageToPage(to_connectionID, htUsers_ConIds[to_connectionID], message);
+            string myname = Context.User.Identity.Name;
+            // check 'who' is exist ?
+            bool existWho = UserRepository.check_user_exist(who);
+            if (!existWho)
+            {
+                Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
+                return;
+            }
+            foreach (var connectionId in _connections.GetConnections(who))
+            {
+                Clients.Client(connectionId).on_receive_message(myname, message);
+            }
+
+            Clients.Caller.on_result_send_message(message_id, 1);
         }
 
         public override Task OnConnected()
         {
-            htUsers_ConIds[Context.ConnectionId] = Context.QueryString["username"];
+            string name = Context.User.Identity.Name;
+            _connections.Add(name, Context.ConnectionId);
 
-            Clients.All.newUserConnect(htUsers_ConIds[Context.ConnectionId], Context.ConnectionId);
-            Clients.Caller.onReceiveListContact(htUsers_ConIds);
+            Clients.All.on_buddy_connect(name);
+            // Get contact of user.
+            string[] contacts = null;
+            Clients.Caller.on_receive_contacts(contacts);
+
             return base.OnConnected();
         }
         public override Task OnDisconnected()
         {
-            htUsers_ConIds.Remove(Context.ConnectionId);
-            Console.WriteLine("disconnect: ", Context.ConnectionId);
+            string name = Context.User.Identity.Name;
+            _connections.Remove(name, Context.ConnectionId);
 
             return base.OnDisconnected();
         }
         public override Task OnReconnected()
         {
-            Console.WriteLine("OnReconnected: ", Context.ConnectionId);
+            string name = Context.User.Identity.Name;
+            _connections.Add(name, Context.ConnectionId);
 
             return base.OnReconnected();
         }

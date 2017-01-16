@@ -112,12 +112,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ChatHub.cs" />
+    <Compile Include="Models\ConnectionMapping.cs" />
     <Compile Include="Models\LogOnModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
-    <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery.signalR-1.1.4.js" />
     <Content Include="Web.config" />
     <Content Include="Views\Web.config" />
@@ -135,7 +136,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\" />
+    <Content Include="Views\Shared\header.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_GlobalResources\Setting.resx">

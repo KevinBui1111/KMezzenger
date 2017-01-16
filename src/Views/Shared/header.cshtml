@@ -1,0 +1,16 @@
+﻿<div class="header clearfix">
+    <div class="head-title">
+        <a href="/">KMezzenger</a>
+    </div>
+    <div class="userinfo">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <span>Hello @User.Identity.Name</span>
+            <a href="/Account/LogOff">[Log Off]</a>
+        }
+        else
+        {
+            <a href="/Account/LogOn">Log On</a>
+        }
+    </div>
+</div>

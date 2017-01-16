@@ -2,7 +2,12 @@
     ViewBag.Title = "Chat";
 }
 
-<h2>Chat</h2>
+<div class="contact_list">
+    <div class="contact_title">Contact list</div>
+    <div>qwrq wrq w qw</div>
+    <div>qwrq wrqtw tiyqw</div>
+    <div>qwrq teuyitw qw</div>
+</div>
 
 <div class="container">
     <input type="text" id="message" />
@@ -22,6 +27,24 @@
     {
         border: 1px solid Red;
     }
+    .contact_list {
+        float: left;
+        /*border: 1px solid gray;*/
+    }
+    .contact_list div {
+        /*border-top: 1px solid gray;*/
+        background-color:#F0F0F0;
+        margin:1px;
+        padding: 5px;
+    }
+    .contact_list div:not(:first-child):hover {
+        background-color:lightblue;
+    }
+    .contact_list .contact_title {
+        border-top: none;
+        background-color:firebrick;
+        color:white;
+    }
 </style>
 }
 @section JS {
@@ -37,19 +60,20 @@
             // Reference the auto-generated proxy for the hub.  
             chat = $.connection.chatHub;
             // Create a function that the hub can call back to display messages.
-            chat.client.addNewMessageToPage = addNewMessageToPage;
+            chat.client.on_receive_message = on_receive_message;
             // Create a function that the hub can call back to notify there is a new user connect.
-            chat.client.newUserConnect = newUserConnect;
+            chat.client.on_buddy_connect = on_buddy_connect;
             // Create a function that the hub can call back to notify list of contact.
-            chat.client.onReceiveListContact = onReceiveListContact;
+            chat.client.on_receive_contacts = on_receive_contacts;
+            chat.client.on_result_send_message = on_result_send_message;
 
             // Get the user name and store it to prepend to messages.
-            $('#displayname').val(prompt('Enter your name:', ''));
+            //$('#displayname').val(prompt('Enter your name:', ''));
             $('#message').focus();
 
             // Start the connection.
             $.connection.hub.qs = { 'username': $('#displayname').val() };
-            $.connection.hub.start().done(onConnected);
+            //$.connection.hub.start().done(onConnected);
 
             var tryingToReconnect = false;
             $.connection.hub.reconnecting(function () { tryingToReconnect = true; });
@@ -61,24 +85,28 @@
         function notifyUserOfTryingToReconnect() {
             console.log('trying to reconnect');
         }
-        function onReceiveListContact(message) {
+
+        function on_result_send_message(message_id, result, error) {
+            
+        }
+        function on_receive_contacts(message) {
             $('#contactList').empty();
             $.each(message, function (key, value) {
-                newUserConnect(value, key);
+                on_buddy_connect(value, key);
             });
         }
         function onSelectContact() {
             $('#contactList li').removeClass('selected');
             $(this).addClass('selected');
         }
-        function newUserConnect(name, connection_id) {
+        function on_buddy_connect(name, connection_id) {
             // Add the message to the page.
             var newLi = $('<li><strong>' + htmlEncode(name)
                     + '</strong>: ' + htmlEncode(connection_id) + '</li>');
             newLi.data('connection_id', connection_id);
             $('#contactList').append(newLi);
         }
-        function addNewMessageToPage(connection_id, name, message) {
+        function on_receive_message(connection_id, name, message) {
             // Add the message to the page. 
             $('#discussion').append('<li><strong>' + htmlEncode(name)
                     + '</strong>: ' + htmlEncode(message) + '</li>');
@@ -89,7 +117,7 @@
         function send_message() {
             var connection_id = $('#contactList li.selected').data('connection_id');
             // Call the Send method on the hub.
-            chat.server.send(connection_id, $('#message').val());
+            chat.server.send_message(connection_id, $('#message').val());
             // Clear text box and reset focus for next comment. 
             $('#message').val('').focus();
         }

@@ -8,7 +8,12 @@ namespace KMezzenger.DataAccess
 {
     public class UserRepository
     {
-
+        static List<string> userList = new List<string>
+        {
+            "KevinBui",
+            "Khanh.BuiDang",
+            "Maika"
+        };
         internal static bool ValidateUser(string UserName, string Password)
         {
             return IsADValid(UserName, Password);
@@ -16,7 +21,7 @@ namespace KMezzenger.DataAccess
 
         private static bool IsADValid(string pUserName, string pPassword)
         {
-            //return true;
+            return true;
             string ldap = Resources.Setting.LDAP_ADDRESS;
             DirectoryEntry ad = new DirectoryEntry(ldap, pUserName, pPassword);
 
@@ -31,10 +36,15 @@ namespace KMezzenger.DataAccess
                     return false;
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
+        }
+
+        internal static bool check_user_exist(string who)
+        {
+            return userList.Contains(who);
         }
     }
 }

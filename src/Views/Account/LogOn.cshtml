@@ -1,45 +1,57 @@
 ﻿@model LogOnModel
-@if (Request.IsAjaxRequest())
-{
 
-}
-else
+@using (Html.BeginForm("LogOn", "Account", FormMethod.Post, new { id = "form_login" }))
 {
-    using (Html.BeginForm("LogOn", "Account", FormMethod.Post, new { id = "form_login" }))
-    {
-    <script src="@Url.Content("~/Scripts/myjs/login.js")" type="text/javascript"></script>
-    @Html.Hidden("ReturnUrl");
+Html.Hidden("ReturnUrl");
   
-    <div class="floatleft">
-        <table style="width: 100%">
-            <tr>
-                <td style="width: 120px">
-                    USER NAME <span class="dev_required_format">*</span>
-                </td>
-                <td>
-                    @Html.TextBoxFor(m => m.UserName)
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    PASSWORD <span class="dev_required_format">*</span>
-                </td>
-                <td>
-                    @Html.PasswordFor(m => m.Password)
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                    <input type="submit" class="red-Metro-Button" value="Logon" />
-                </td>
-            </tr>
-        </table>
-    </div>
-
-
-    <div class="clearfloat">
-    </div>
+<div class="floatleft">
+    @if (this.IsPost)
+    {
+        <span class="error">@ViewBag.error</span>
     }
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 120px">
+                Username <span class="dev_required_format">*</span>
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.UserName)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Password <span class="dev_required_format">*</span>
+            </td>
+            <td>
+                @Html.PasswordFor(m => m.Password)
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <input type="submit" class="red-Metro-Button" value="Logon" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<div class="clearfloat">
+</div>
+}
+
+@section JS {
+<script type="text/javascript">
+    $("#form_login").validate({
+        rules: {
+            UserName: "required",
+            Password: "required",
+        },
+        messages: {
+            UserName: "",
+            Password: "",
+        }
+    });
+</script>
 }

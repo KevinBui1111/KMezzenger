@@ -2,14 +2,18 @@
 <html>
 <head>
     <title>@ViewBag.Title</title>
-    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <link href="/Content/Site.css" rel="stylesheet" type="text/css" />
     @RenderSection("CSS", false)
 </head>
 
 <body>
-    @RenderBody()
+    @Html.Partial("header")
+    <div id="main" class="clearfix">
+        @RenderBody()
+    </div>
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
     <script src="/Scripts/jquery.signalR-1.1.4.js"></script>
     <script src="/signalr/hubs"></script>
 
