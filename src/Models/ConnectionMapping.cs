@@ -29,14 +29,20 @@ namespace KMezzenger.Models
 
         public IEnumerable<string> GetConnections(T key)
         {
-            var conns = dicConnection[key];
-            return conns ?? Enumerable.Empty<string>();
+            HashSet<string> connections;
+            dicConnection.TryGetValue(key, out connections);
+
+            return connections ?? Enumerable.Empty<string>();
+        }
+        public IEnumerable<string> GetConnections(T[] key)
+        {
+            return dicConnection.Where(kp => key.Contains(kp.Key)).SelectMany(kp => kp.Value);
         }
 
         public void Remove(T key, string connectionId)
         {
-            HashSet<string> connections = dicConnection[key];
-            if (connections != null)
+            HashSet<string> connections;
+            if (dicConnection.TryGetValue(key, out connections))
                 lock (connections)
                 {
                     connections.Remove(connectionId);
@@ -47,6 +53,12 @@ namespace KMezzenger.Models
                         dicConnection.TryRemove(key, out removedUser);
                     }
                 }
+        }
+        public bool HasConnection(T key)
+        {
+            HashSet<string> conns;
+            dicConnection.TryGetValue(key, out conns);
+            return conns != null && conns.Count > 0;
         }
     }
 }

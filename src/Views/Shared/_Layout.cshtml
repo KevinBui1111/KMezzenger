@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>@ViewBag.Title</title>
-    <link href="/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
     @RenderSection("CSS", false)
 </head>
 
@@ -14,8 +14,9 @@
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
-    <script src="/Scripts/jquery.signalR-1.1.4.js"></script>
-    <script src="/signalr/hubs"></script>
+    <script src="@Url.Content("~/Scripts/jquery.signalR-1.1.4.js")"></script>
+    <script src="@Url.Content("~/signalr/hubs")"></script>
+    <script src="@Url.Content("~/Scripts/common.js")"></script>
 
     @RenderSection("JS", false)
 </body>

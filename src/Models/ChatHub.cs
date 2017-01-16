@@ -19,17 +19,21 @@ namespace KMezzenger.Models
         {
             string myname = Context.User.Identity.Name;
             // check 'who' is exist ?
-            bool existWho = UserRepository.check_user_exist(who);
-            if (!existWho)
-            {
-                Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
-                return;
-            }
+            //bool existWho = UserRepository.check_user_exist(who);
+            //if (!existWho)
+            //{
+            //    Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
+            //    return;
+            //}
+
             foreach (var connectionId in _connections.GetConnections(who))
             {
                 Clients.Client(connectionId).on_receive_message(myname, message);
             }
 
+            //save message to database
+            MessageRepository.save_message(myname, who, message, message_id);
+            // response success to client.
             Clients.Caller.on_result_send_message(message_id, 1);
         }
 
@@ -38,10 +42,16 @@ namespace KMezzenger.Models
             string name = Context.User.Identity.Name;
             _connections.Add(name, Context.ConnectionId);
 
-            Clients.All.on_buddy_connect(name);
             // Get contact of user.
-            string[] contacts = null;
-            Clients.Caller.on_receive_contacts(contacts);
+            string[] contacts = UserRepository.get_your_buddies(name);
+
+            foreach (var connectionId in _connections.GetConnections(contacts))
+            {
+                Clients.Client(connectionId).on_buddy_connect(new UserStatus { username = name, status = 1 });
+            }
+
+            IEnumerable<UserStatus> userStatus = get_user_status(contacts);
+            Clients.Caller.on_receive_contacts(userStatus);
 
             return base.OnConnected();
         }
@@ -49,6 +59,13 @@ namespace KMezzenger.Models
         {
             string name = Context.User.Identity.Name;
             _connections.Remove(name, Context.ConnectionId);
+
+            string[] contacts = UserRepository.get_your_buddies(name);
+
+            foreach (var connectionId in _connections.GetConnections(contacts))
+            {
+                Clients.Client(connectionId).on_buddy_connect(new UserStatus { username = name, status = 0 });
+            }
 
             return base.OnDisconnected();
         }
@@ -58,6 +75,11 @@ namespace KMezzenger.Models
             _connections.Add(name, Context.ConnectionId);
 
             return base.OnReconnected();
+        }
+
+        private IEnumerable<UserStatus> get_user_status(string[] user)
+        {
+            return user.Select(u => new UserStatus { username = u, status = _connections.HasConnection(u) ? 1 : 0});
         }
     }
 

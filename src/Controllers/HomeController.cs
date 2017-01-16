@@ -14,9 +14,7 @@ namespace KMezzenger.Controllers
 
         public ActionResult Index()
         {
-            string a = Request.ServerVariables["LOGON_USER"];
-            bool b = User.Identity.IsAuthenticated;
-            return View();
+            return RedirectToAction("Chat");
         }
         public ActionResult Chat()
         {

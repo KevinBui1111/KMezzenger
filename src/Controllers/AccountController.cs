@@ -11,7 +11,7 @@ namespace KMezzenger.Controllers
 {
     public class AccountController : Controller
     {
-        public ActionResult LogOn(string ReturnUrl)
+        public ActionResult LogOn(string returnUrl)
         {
             if (Request.IsAjaxRequest())
                 return PartialView();

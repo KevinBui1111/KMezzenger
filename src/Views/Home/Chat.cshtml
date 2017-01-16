@@ -2,48 +2,90 @@
     ViewBag.Title = "Chat";
 }
 
-<div class="contact_list">
+<div id="contact_list">
     <div class="contact_title">Contact list</div>
-    <div>qwrq wrq w qw</div>
-    <div>qwrq wrqtw tiyqw</div>
-    <div>qwrq teuyitw qw</div>
 </div>
 
-<div class="container">
-    <input type="text" id="message" />
-    <input type="button" id="sendmessage" value="Send" />
-    <input type="hidden" id="displayname" />
-    <div>
-        Contact list
-        <ul id="contactList"></ul>
+<div id="templateDiv" class="hidden" >
+    <div class="contact"></div>
+
+    <div class="rightFrame">
+        <div class="time">(p0)</div>
+	        <div class="roundDiv blue">
+	            <span>(p1)</span>
+	        </div><!--
+            --><div class="Corner rightCorner"></div>
     </div>
-    Conversation
-    <ul id="discussion">
-    </ul>
+
+    <div class="leftFrame">
+	        <div class="Corner leftCorner"></div><!--
+            --><div class="roundDiv pink">
+	            <span>(p1)</span>
+	        </div>
+        <div class="time">(p0)</div>
+    </div>
 </div>
+
+<div class="messDiv">
+    <div class='buddy_name'></div>
+    <div class="convDiv">
+
+    </div>
+
+
+    <div class='composeMessage'>
+        <textarea id="message" rows='2'></textarea>
+        <input type="button" id="sendmessage" value="Send" />
+    </div>
+</div>
+
 @section CSS {
+<link href="@Url.Content("~/Content/Message.css")" rel="stylesheet" type="text/css" />
+
 <style type="text/css">
-    li.selected
-    {
-        border: 1px solid Red;
-    }
-    .contact_list {
+    #contact_list {
         float: left;
         /*border: 1px solid gray;*/
     }
-    .contact_list div {
+    #contact_list div {
         /*border-top: 1px solid gray;*/
         background-color:#F0F0F0;
         margin:1px;
         padding: 5px;
     }
-    .contact_list div:not(:first-child):hover {
+    #contact_list div:not(:first-child):hover {
         background-color:lightblue;
     }
-    .contact_list .contact_title {
+    #contact_list .contact_title {
         border-top: none;
         background-color:firebrick;
         color:white;
+    }
+    #contact_list div.selected
+    {
+        background-color:lightblue;
+    }
+    div.online {
+        color:Blue;
+    }
+    div.offline {
+        color:Gray;
+    }
+
+    #message 
+    {
+        width: 500px;
+    }
+    .composeMessage textarea, .composeMessage input
+    {
+        vertical-align:middle;
+    }
+    .buddy_name 
+    {
+        font-size: 2em;
+        border-bottom: 1px solid grey;
+        margin-bottom: 15px;
+        padding: 5px;
     }
 </style>
 }
@@ -54,9 +96,10 @@
     <!--SignalR script to update the chat page and send messages.--> 
     <script type="text/javascript">
         var chat;
+        var dicContact = {};
         $(document).ready(function () {
 
-            $('#contactList').on('click', 'li', onSelectContact);
+            $('#contact_list').on('click', '.contact', onSelectContact);
             // Reference the auto-generated proxy for the hub.  
             chat = $.connection.chatHub;
             // Create a function that the hub can call back to display messages.
@@ -73,7 +116,7 @@
 
             // Start the connection.
             $.connection.hub.qs = { 'username': $('#displayname').val() };
-            //$.connection.hub.start().done(onConnected);
+            $.connection.hub.start().done(onConnected);
 
             var tryingToReconnect = false;
             $.connection.hub.reconnecting(function () { tryingToReconnect = true; });
@@ -90,36 +133,49 @@
             
         }
         function on_receive_contacts(message) {
-            $('#contactList').empty();
-            $.each(message, function (key, value) {
-                on_buddy_connect(value, key);
+            $('#contact_list .contact').remove();
+            $.each(message, function (index, value) {
+                on_buddy_connect(value);
             });
         }
         function onSelectContact() {
-            $('#contactList li').removeClass('selected');
+            $('#contact_list .contact').removeClass('selected');
             $(this).addClass('selected');
+            $('.buddy_name').html($(this).html());
         }
-        function on_buddy_connect(name, connection_id) {
+        function on_buddy_connect(buddy) {
             // Add the message to the page.
-            var newLi = $('<li><strong>' + htmlEncode(name)
-                    + '</strong>: ' + htmlEncode(connection_id) + '</li>');
-            newLi.data('connection_id', connection_id);
-            $('#contactList').append(newLi);
+            var contact;
+            if (buddy.username in dicContact) {
+                contact = dicContact[buddy.username];
+            }
+            else {
+                contact = $('#templateDiv .contact').clone().appendTo('#contact_list');
+                dicContact[buddy.username] = contact;
+                contact.html(buddy.username);
+            }
+            contact.removeClass('offline online');
+            contact.addClass(buddy.status == 0 ? 'offline' : 'online');
         }
-        function on_receive_message(connection_id, name, message) {
+        function on_receive_message(name, message) {
             // Add the message to the page. 
-            $('#discussion').append('<li><strong>' + htmlEncode(name)
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            var mess = $('#templateDiv .leftFrame')[0].outerHTML.format('14:35', htmlEncode(message));
+            $('.convDiv').append(mess);
         }
         function onConnected() {
             $('#sendmessage').click(send_message);
         }
         function send_message() {
-            var connection_id = $('#contactList li.selected').data('connection_id');
+            var who = $('#contact_list .selected').html();
+            var message = $('#message').val();
             // Call the Send method on the hub.
-            chat.server.send_message(connection_id, $('#message').val());
+            chat.server.send_message(who, message, 1);
             // Clear text box and reset focus for next comment. 
             $('#message').val('').focus();
+
+            var mess = $('#templateDiv .rightFrame')[0].outerHTML.format('14:36', message);
+            $('.convDiv').append(mess);
+
         }
         // This optional function html-encodes messages for display in the page.
         function htmlEncode(value) {

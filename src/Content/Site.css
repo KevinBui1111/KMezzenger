@@ -35,6 +35,9 @@ a:link, a:visited {
 .userinfo {
     float: right;
 }
+.hidden {
+    display:none;
+}
 /*=================== element style ===================*/
 
 input[type="text"], input[type="password"], select, textarea {

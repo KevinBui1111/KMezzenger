@@ -2,7 +2,7 @@
 
 @using (Html.BeginForm("LogOn", "Account", FormMethod.Post, new { id = "form_login" }))
 {
-Html.Hidden("ReturnUrl");
+Html.Hidden("returnUrl");
   
 <div class="floatleft">
     @if (this.IsPost)

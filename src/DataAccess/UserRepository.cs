@@ -12,7 +12,7 @@ namespace KMezzenger.DataAccess
         {
             "KevinBui",
             "Khanh.BuiDang",
-            "Maika"
+            //"Maika"
         };
         internal static bool ValidateUser(string UserName, string Password)
         {
@@ -21,7 +21,7 @@ namespace KMezzenger.DataAccess
 
         private static bool IsADValid(string pUserName, string pPassword)
         {
-            return true;
+            return pPassword == "123123123";
             string ldap = Resources.Setting.LDAP_ADDRESS;
             DirectoryEntry ad = new DirectoryEntry(ldap, pUserName, pPassword);
 
@@ -45,6 +45,11 @@ namespace KMezzenger.DataAccess
         internal static bool check_user_exist(string who)
         {
             return userList.Contains(who);
+        }
+
+        internal static string[] get_your_buddies(string name)
+        {
+            return userList.Where(u => u != name).ToArray();
         }
     }
 }

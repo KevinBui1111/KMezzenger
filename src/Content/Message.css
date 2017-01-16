@@ -1,0 +1,77 @@
+.messDiv
+{
+    float:right;
+}
+.convDiv
+{
+    
+    width:600px;
+    max-height:800px;
+    overflow-y:auto;
+    text-shadow: 0px 0px 1px rgba(0,0,0,.5);
+    font-size:1em;    
+}
+
+.convDiv > div
+{
+    margin-bottom:10px;   
+}
+
+.convDiv > div > div
+{
+    display:inline-block;
+}
+
+.rightFrame
+{
+    text-align:right;    
+}
+
+.roundDiv
+{
+    border-radius: 5px;
+    padding:4px 8px 8px 8px;
+    text-align:left;
+    max-width:370px;   
+    vertical-align:middle;  
+}
+
+.Corner
+{
+    vertical-align:top;
+    margin-top:5px;
+    width:10px;
+    height:10px;
+}
+
+.leftCorner
+{
+    background: url("p_d.png") no-repeat;
+}
+.rightCorner
+{
+    background: url("b_d.png") no-repeat;
+}
+.pink
+{
+    background-color:#FEE0EF;
+}
+
+.blue
+{
+    background-color:#BAE3FF;
+}
+
+.time
+{
+    color:Gray;
+    font-size:0.7em;
+}
+.gps
+{
+    background: url("Location2.png") no-repeat;
+    width:32px;
+    height:32px;
+    vertical-align:middle;
+    display:inline-block;
+}

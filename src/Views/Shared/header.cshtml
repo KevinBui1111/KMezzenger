@@ -6,11 +6,11 @@
         @if (User.Identity.IsAuthenticated)
         {
             <span>Hello @User.Identity.Name</span>
-            <a href="/Account/LogOff">[Log Off]</a>
+            <a href="@Url.Content("~/Account/LogOff")">[Log Off]</a>
         }
         else
         {
-            <a href="/Account/LogOn">Log On</a>
+            <a href="@Url.Content("~/Account/LogOn")">Log On</a>
         }
     </div>
 </div>
