@@ -28,7 +28,7 @@ namespace KMezzenger.Models
 
             foreach (var connectionId in _connections.GetConnections(who))
             {
-                Clients.Client(connectionId).on_receive_message(myname, message);
+                Clients.Client(connectionId).on_receive_message(new Message { from = myname, content = message, date_sent = DateTime.Now });
             }
 
             //save message to database

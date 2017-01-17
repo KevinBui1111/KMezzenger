@@ -22,9 +22,14 @@ function formatDatetimeFromJson(val) {
     if (!val) return "";
     var dx = new Date(parseInt(val.substr(6)));
 
-    return formatDate(dx, "dd/MM/yyyy HH:mm", dx);
+    return formatDate(dx, "dd/MM/yyyy HH:mm");
 }
+function format_time_from_json(val) {
+    if (!val) return "";
+    var dx = new Date(parseInt(val.substr(6)));
 
+    return formatDate(dx, "hh:mm tt");
+}
 function post_to_url(path, params) {
     var method = 'post';
 

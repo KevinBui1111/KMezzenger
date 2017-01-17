@@ -12,7 +12,7 @@ namespace KMezzenger.DataAccess
         {
             "KevinBui",
             "Khanh.BuiDang",
-            //"Maika"
+            "Maika"
         };
         internal static bool ValidateUser(string UserName, string Password)
         {

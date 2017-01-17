@@ -14,7 +14,7 @@ namespace KMezzenger.Controllers
 
         public ActionResult Index()
         {
-            return RedirectToAction("Chat");
+            return View();
         }
         public ActionResult Chat()
         {

@@ -24,17 +24,17 @@
 	        </div>
         <div class="time">(p0)</div>
     </div>
+
+    <div class="convDiv"></div>
+
 </div>
 
 <div class="messDiv">
     <div class='buddy_name'></div>
-    <div class="convDiv">
-
-    </div>
 
 
     <div class='composeMessage'>
-        <textarea id="message" rows='2'></textarea>
+        <textarea id="message" rows='2' disabled></textarea>
         <input type="button" id="sendmessage" value="Send" />
     </div>
 </div>
@@ -97,8 +97,15 @@
     <script type="text/javascript">
         var chat;
         var dicContact = {};
-        $(document).ready(function () {
+        //var dicMessageContent = {};
 
+        $(document).ready(function () {
+            $('#message').keyup(function (e) {
+                if (e.ctrlKey || e.altKey || e.shiftKey) { }
+                else if (e.keyCode == 13) {
+                    $("#sendmessage").click();
+                }
+            });
             $('#contact_list').on('click', '.contact', onSelectContact);
             // Reference the auto-generated proxy for the hub.  
             chat = $.connection.chatHub;
@@ -139,9 +146,27 @@
             });
         }
         function onSelectContact() {
+            var activeUser = $('#contact_list .contact.selected').html();
+            var selectedUser = $(this).html();
+            // save message content;
+            //dicMessageContent[activeUser] = $('.convDiv').html();
+
+            if (activeUser == selectedUser) return;
+
+            //
+            var selectConv = get_content_message(selectedUser);
+
+            $('.messDiv .convDiv').hide();
+            selectConv.show();
+
             $('#contact_list .contact').removeClass('selected');
             $(this).addClass('selected');
-            $('.buddy_name').html($(this).html());
+
+            $('.buddy_name').html(selectedUser);
+            $('#message')[0].disabled = false;
+
+            //if (!(selectedUser in dicMessageContent)) dicMessageContent[selectedUser] = '';
+            //$('.convDiv').html(dicMessageContent[selectedUser]);
         }
         function on_buddy_connect(buddy) {
             // Add the message to the page.
@@ -157,30 +182,51 @@
             contact.removeClass('offline online');
             contact.addClass(buddy.status == 0 ? 'offline' : 'online');
         }
-        function on_receive_message(name, message) {
+        function on_receive_message(message) {
             // Add the message to the page. 
-            var mess = $('#templateDiv .leftFrame')[0].outerHTML.format('14:35', htmlEncode(message));
-            $('.convDiv').append(mess);
+            var mess = $('#templateDiv .leftFrame')[0].outerHTML.format(formatDate(new Date(message.date_sent), "hh:mm tt"), htmlEncode(message.content));
+            get_content_message(message.from).append(mess);
+            scrollBottom($('.convDiv'));
         }
         function onConnected() {
             $('#sendmessage').click(send_message);
         }
         function send_message() {
             var who = $('#contact_list .selected').html();
-            var message = $('#message').val();
+            var message = $.trim($('#message').val());
+            if (message == '') {
+                $('#message').val('');
+                return;
+            }
             // Call the Send method on the hub.
             chat.server.send_message(who, message, 1);
             // Clear text box and reset focus for next comment. 
             $('#message').val('').focus();
 
-            var mess = $('#templateDiv .rightFrame')[0].outerHTML.format('14:36', message);
-            $('.convDiv').append(mess);
-
+            var mess = $('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), htmlEncode(message));
+            $('.convDiv[username="' + who + '"]').append(mess);
+            scrollBottom($('.convDiv'));
         }
         // This optional function html-encodes messages for display in the page.
         function htmlEncode(value) {
             var encodedValue = $('<div />').text(value).html();
             return encodedValue;
+        }
+        function scrollBottom(e)
+        {
+            e.animate({ scrollTop: e.prop("scrollHeight") }, 1000);
+        }
+        function get_content_message(username)
+        {
+            var selectConv = $('.convDiv[username="' + username + '"]');
+            if (selectConv.length == 0) {
+                selectConv = $('#templateDiv .convDiv').clone();
+                selectConv.attr('username', username);
+                selectConv.hide();
+                selectConv.insertBefore('.composeMessage');
+            }
+
+            return selectConv;
         }
     </script>
 }
