@@ -19,12 +19,12 @@ namespace KMezzenger.Models
         {
             string myname = Context.User.Identity.Name;
             // check 'who' is exist ?
-            //bool existWho = UserRepository.check_user_exist(who);
-            //if (!existWho)
-            //{
-            //    Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
-            //    return;
-            //}
+            bool existWho = UserRepository.check_user_exist(who);
+            if (!existWho)
+            {
+                Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
+                return;
+            }
 
             foreach (var connectionId in _connections.GetConnections(who))
             {

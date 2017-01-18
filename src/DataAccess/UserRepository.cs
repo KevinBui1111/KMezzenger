@@ -6,7 +6,7 @@ using System.DirectoryServices;
 
 namespace KMezzenger.DataAccess
 {
-    public class UserRepository
+    public class UserRepository :IUserRepository
     {
         static List<string> userList = new List<string>
         {
@@ -42,14 +42,19 @@ namespace KMezzenger.DataAccess
             }
         }
 
-        internal static bool check_user_exist(string who)
+        internal bool check_user_exist(string who)
         {
             return userList.Contains(who);
         }
 
-        internal static string[] get_your_buddies(string name)
+        internal string[] get_your_buddies(string username)
         {
-            return userList.Where(u => u != name).ToArray();
+            return userList.Where(u => u != username).ToArray();
+        }
+
+        internal string[] get_user(string username)
+        {
+            return null;
         }
     }
 }

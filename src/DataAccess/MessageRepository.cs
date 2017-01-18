@@ -6,7 +6,7 @@ using System.DirectoryServices;
 
 namespace KMezzenger.DataAccess
 {
-    public class MessageRepository
+    public class MessageRepository : IMessageRepository
     {
         internal static bool save_message(string from, string to,string message, string message_id)
         {
