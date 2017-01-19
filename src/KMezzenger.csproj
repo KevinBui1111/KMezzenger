@@ -79,6 +79,7 @@
       <HintPath>packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Oracle.DataAccess, Version=4.112.3.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=x86" />
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
@@ -119,7 +120,9 @@
     </Compile>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="DataAccess\Helper.cs" />
+    <Compile Include="DataAccess\DataAcess.cs" />
+    <Compile Include="Helper\DBUtilsOra.cs" />
+    <Compile Include="Helper\Helper.cs" />
     <Compile Include="DataAccess\IMessageRepository.cs" />
     <Compile Include="DataAccess\MessageRepository.cs" />
     <Compile Include="DataAccess\SQLiteHelper.cs" />
@@ -127,6 +130,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\Password.cs" />
     <Compile Include="Models\ChatHub.cs" />
     <Compile Include="Models\ConnectionMapping.cs" />
     <Compile Include="Models\User.cs" />

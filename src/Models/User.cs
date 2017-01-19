@@ -12,6 +12,7 @@ namespace KMezzenger.Models
         public string password { get; set; }
         public string salt { get; set; }
 
+        public int login_type { get; set; }
         public int status { get; set; }
     }
 }

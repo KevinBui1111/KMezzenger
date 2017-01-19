@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DEBUG_ACCESS" xml:space="preserve">
+    <value>f320992058823391d1a37f9f5b55efd2</value>
+  </data>
   <data name="LDAP_ADDRESS" xml:space="preserve">
     <value>LDAP://vnhqsdc02.hcnet.vn:389</value>
   </data>

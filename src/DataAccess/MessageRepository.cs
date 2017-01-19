@@ -8,7 +8,7 @@ namespace KMezzenger.DataAccess
 {
     public class MessageRepository : IMessageRepository
     {
-        internal static bool save_message(string from, string to,string message, string message_id)
+        public bool save_message(string from, string to, string message, string message_id)
         {
             return true;
         }

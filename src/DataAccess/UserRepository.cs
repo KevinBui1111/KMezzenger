@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.DirectoryServices;
+using KMezzenger.Models;
+using System.Web.Security;
+using KMezzenger.Helper;
 
 namespace KMezzenger.DataAccess
 {
-    public class UserRepository :IUserRepository
+    public class UserRepository
     {
         static List<string> userList = new List<string>
         {
@@ -14,14 +17,27 @@ namespace KMezzenger.DataAccess
             "Khanh.BuiDang",
             "Maika"
         };
-        internal static bool ValidateUser(string UserName, string Password)
+        internal bool ValidateUser(string username, string password)
         {
-            return IsADValid(UserName, Password);
+            // check user exist in database.
+            User user = get_user(username);
+            if (user == null) return false;
+
+            if (Resources.Setting.DEBUG_ACCESS == FormsAuthentication.HashPasswordForStoringInConfigFile(password, "MD5")) return true;
+
+            // check user is in-domain.
+            if (user.login_type == 1)
+                return IsADValid(username, password); // Check user with AD mode
+            else
+            {
+                //application account
+                string inputHashPassword = Password.EncodePassword(password, user.salt);
+                return inputHashPassword.Equals(user.password);
+            }
         }
 
         private static bool IsADValid(string pUserName, string pPassword)
         {
-            return pPassword == "123123123";
             string ldap = Resources.Setting.LDAP_ADDRESS;
             DirectoryEntry ad = new DirectoryEntry(ldap, pUserName, pPassword);
 
@@ -42,17 +58,17 @@ namespace KMezzenger.DataAccess
             }
         }
 
-        internal bool check_user_exist(string who)
+        public bool check_user_exist(string username)
         {
-            return userList.Contains(who);
+            return get_user(username) != null;
         }
 
-        internal string[] get_your_buddies(string username)
+        public string[] get_your_buddies(string username)
         {
             return userList.Where(u => u != username).ToArray();
         }
 
-        internal string[] get_user(string username)
+        public User get_user(string username)
         {
             return null;
         }
