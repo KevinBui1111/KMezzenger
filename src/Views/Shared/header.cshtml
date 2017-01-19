@@ -14,3 +14,14 @@
         }
     </div>
 </div>
+
+<div>
+    @if (ViewBag.error != null)
+    {
+        <span class="error">@ViewBag.error</span>
+    }
+    else if (ViewBag.inform != null)
+    {
+        <span class="inform">@ViewBag.error</span>
+    }
+</div>

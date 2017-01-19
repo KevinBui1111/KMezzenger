@@ -15,7 +15,7 @@ namespace KMezzenger.Models
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
 
-        public void send_message(string who, string message, string message_id)
+        public void send_message(string who, string message, DateTime date_sent, string message_id)
         {
             string myname = Context.User.Identity.Name;
             // check 'who' is exist ?
@@ -32,7 +32,7 @@ namespace KMezzenger.Models
             }
 
             //save message to database
-            MessageRepository.save_message(myname, who, message, message_id);
+            UserRepository.save_message(myname, who, message, date_sent, message_id);
             // response success to client.
             Clients.Caller.on_result_send_message(message_id, 1);
         }

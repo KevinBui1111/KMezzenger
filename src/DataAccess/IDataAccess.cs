@@ -6,10 +6,11 @@ using KMezzenger.Models;
 
 namespace KMezzenger.DataAccess
 {
-    public interface IRepository
+    public interface IDataAccess
     {
-        bool save_message(string from, string to, string message, string message_id);
+        int save_message(string from, string to, string message, DateTime date_sent, string message_id);
         string[] get_your_buddies(string username);
         User get_user(string username);
+        void create_user(string username, string hashpass, string salt);
     }
 }

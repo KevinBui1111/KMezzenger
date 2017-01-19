@@ -9,8 +9,8 @@ namespace KMezzenger.Models
     {
         public int user_id { get; set; }
         public string username { get; set; }
-        public string password { get; set; }
-        public string salt { get; set; }
+        public string hash_pass { get; set; }
+        public string hash_salt { get; set; }
 
         public int login_type { get; set; }
         public int status { get; set; }

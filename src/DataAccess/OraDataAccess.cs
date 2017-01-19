@@ -10,9 +10,8 @@ using Oracle.DataAccess.Types;
 
 namespace KMezzenger.DataAccess
 {
-    public class DataAcess : IRepository
+    public class OraDataAccess : IDataAccess
     {
-
         public int save_message(string from, string to, string message, DateTime date_sent, string message_id)
         {
             OracleParameter pResult = new OracleParameter("RESULT", OracleDbType.Int32, ParameterDirection.Output);
@@ -54,6 +53,17 @@ namespace KMezzenger.DataAccess
 
             return DBUtilsOra.ExecuteSPList<User>("GET_USER", listParameter, "CONN_KMESS").SingleOrDefault();
 
+        }
+
+        public void create_user(string username, string hashpass, string salt)
+        {
+            List<OracleParameter> listParameter = new List<OracleParameter>() {
+                new OracleParameter("PARAM", username),
+                new OracleParameter("PARAM", hashpass),
+                new OracleParameter("PARAM", salt),
+            };
+
+            DBUtilsOra.ExecuteNonQuerySP("CREATE_USER", listParameter, "CONN_KMESS");
         }
     }
 }

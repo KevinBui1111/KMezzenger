@@ -49,5 +49,24 @@ namespace KMezzenger.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public ActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Register(LogOnModel model)
+        {
+            model.UserName = model.UserName.Trim();
+            if (UserRepository.check_user_exist(model.UserName))
+            {
+                ViewBag.error = string.Format("Username [{0}] is already existed!", model.UserName);
+                return View(model);
+            }
+
+            UserRepository.create_user(model.UserName, model.Password);
+            ViewBag.inform = string.Format("User [{0}] is created successfully, please login!", model.UserName);
+
+            return View("LogOn", model);
+        }
     }
 }

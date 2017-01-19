@@ -1,14 +1,13 @@
 ﻿@model LogOnModel
 
-@using (Html.BeginForm("LogOn", "Account", FormMethod.Post, new { id = "form_login" }))
+@using (Html.BeginForm())
 {
-@Html.Hidden("returnUrl")
-  
+
 <div class="floatleft">
     <table style="width: 100%">
         <tr>
-            <td style="width: 120px">
-                Username <span class="dev_required_format">*</span>
+            <td style="width: 160px">
+                Username *
             </td>
             <td>
                 @Html.TextBoxFor(m => m.UserName)
@@ -16,10 +15,18 @@
         </tr>
         <tr>
             <td>
-                Password <span class="dev_required_format">*</span>
+                Password *
             </td>
             <td>
                 @Html.PasswordFor(m => m.Password)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Confirm Password *
+            </td>
+            <td>
+                @Html.PasswordFor(m => m.ConfirmPassword)
             </td>
         </tr>
         <tr>
@@ -39,14 +46,16 @@
 
 @section JS {
 <script type="text/javascript">
-    $("#form_login").validate({
+    $("form").validate({
         rules: {
             UserName: "required",
             Password: "required",
+            ConfirmPassword: { equalTo: "#Password" },
         },
         messages: {
             UserName: "",
             Password: "",
+            ConfirmPassword: ""
         }
     });
 </script>
