@@ -7,7 +7,10 @@
 </div>
 
 <div id="templateDiv" class="hidden" >
-    <div class="contact"></div>
+    <div class="contact clearfix" data-unread_cnt="0">
+        <div class="name_contact"></div>
+        <span class="notify"></span>
+    </div>
 
     <div class="rightFrame">
         <div class="time">(p0)</div>
@@ -43,11 +46,29 @@
 <link href="@Url.Content("~/Content/Message.css")" rel="stylesheet" type="text/css" />
 
 <style type="text/css">
+    .notify {
+        background-color: orangered;
+        color: white;
+        border-radius: 20%;
+        padding: .3em;
+        font-size:.7em;
+        float: right;
+    }
+    span:empty {
+      display:none;
+    }
+    .name_contact {
+        width: 8em;
+        float: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
     #contact_list {
         float: left;
         /*border: 1px solid gray;*/
     }
-    #contact_list div {
+    #contact_list > div {
         /*border-top: 1px solid gray;*/
         background-color:#F0F0F0;
         margin:1px;
@@ -90,143 +111,13 @@
 </style>
 }
 @section JS {
-    <!--Script references. -->
-    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
-    <!--Reference the SignalR library. -->
-    <!--SignalR script to update the chat page and send messages.--> 
+    <script src="@Url.Content("~/Scripts/chat.js")"></script>
     <script type="text/javascript">
-        var chat;
-        var dicContact = {};
-        //var dicMessageContent = {};
-
-        $(document).ready(function () {
-            $('#message').keyup(function (e) {
-                if (e.ctrlKey || e.altKey || e.shiftKey) { }
-                else if (e.keyCode == 13) {
-                    $("#sendmessage").click();
-                }
-            });
-            $('#contact_list').on('click', '.contact', onSelectContact);
-            // Reference the auto-generated proxy for the hub.  
-            chat = $.connection.chatHub;
-            // Create a function that the hub can call back to display messages.
-            chat.client.on_receive_message = on_receive_message;
-            // Create a function that the hub can call back to notify there is a new user connect.
-            chat.client.on_buddy_connect = on_buddy_connect;
-            // Create a function that the hub can call back to notify list of contact.
-            chat.client.on_receive_contacts = on_receive_contacts;
-            chat.client.on_result_send_message = on_result_send_message;
-
-            // Get the user name and store it to prepend to messages.
-            //$('#displayname').val(prompt('Enter your name:', ''));
-            $('#message').focus();
-
-            // Start the connection.
-            $.connection.hub.qs = { 'username': $('#displayname').val() };
-            $.connection.hub.start().done(onConnected);
-
-            var tryingToReconnect = false;
-            $.connection.hub.reconnecting(function () { tryingToReconnect = true; });
-            $.connection.hub.reconnected(function () { tryingToReconnect = false; });
-            $.connection.hub.disconnected(function () {
-                setTimeout(function () { $.connection.hub.start(); }, 5000); // Restart connection after 5 seconds.
-            });
+        window.onbeforeunload = function () {
+            return null;
+        }
+        $(window).unload(function () {
+            return "Handler for .unload() called.";
         });
-        function notifyUserOfTryingToReconnect() {
-            console.log('trying to reconnect');
-        }
-
-        function on_result_send_message(message_id, result, error) {
-            
-        }
-        function on_receive_contacts(message) {
-            $('#contact_list .contact').remove();
-            $.each(message, function (index, value) {
-                on_buddy_connect(value);
-            });
-        }
-        function onSelectContact() {
-            var activeUser = $('#contact_list .contact.selected').html();
-            var selectedUser = $(this).html();
-            // save message content;
-            //dicMessageContent[activeUser] = $('.convDiv').html();
-
-            if (activeUser == selectedUser) return;
-
-            //
-            var selectConv = get_content_message(selectedUser);
-
-            $('.messDiv .convDiv').hide();
-            selectConv.show();
-
-            $('#contact_list .contact').removeClass('selected');
-            $(this).addClass('selected');
-
-            $('.buddy_name').html(selectedUser);
-            $('#message')[0].disabled = false;
-
-            //if (!(selectedUser in dicMessageContent)) dicMessageContent[selectedUser] = '';
-            //$('.convDiv').html(dicMessageContent[selectedUser]);
-        }
-        function on_buddy_connect(buddy) {
-            // Add the message to the page.
-            var contact;
-            if (buddy.username in dicContact) {
-                contact = dicContact[buddy.username];
-            }
-            else {
-                contact = $('#templateDiv .contact').clone().appendTo('#contact_list');
-                dicContact[buddy.username] = contact;
-                contact.html(buddy.username);
-            }
-            contact.removeClass('offline online');
-            contact.addClass(buddy.status == 0 ? 'offline' : 'online');
-        }
-        function on_receive_message(message) {
-            // Add the message to the page. 
-            var mess = $('#templateDiv .leftFrame')[0].outerHTML.format(formatDate(new Date(message.date_sent), "hh:mm tt"), htmlEncode(message.content));
-            get_content_message(message.from).append(mess);
-            scrollBottom($('.convDiv'));
-        }
-        function onConnected() {
-            $('#sendmessage').click(send_message);
-        }
-        function send_message() {
-            var who = $('#contact_list .selected').html();
-            var message = $.trim($('#message').val());
-            if (message == '') {
-                $('#message').val('');
-                return;
-            }
-            // Call the Send method on the hub.
-            chat.server.send_message(who, message, 1);
-            // Clear text box and reset focus for next comment. 
-            $('#message').val('').focus();
-
-            var mess = $('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), htmlEncode(message));
-            $('.convDiv[username="' + who + '"]').append(mess);
-            scrollBottom($('.convDiv'));
-        }
-        // This optional function html-encodes messages for display in the page.
-        function htmlEncode(value) {
-            var encodedValue = $('<div />').text(value).html();
-            return encodedValue;
-        }
-        function scrollBottom(e)
-        {
-            e.animate({ scrollTop: e.prop("scrollHeight") }, 1000);
-        }
-        function get_content_message(username)
-        {
-            var selectConv = $('.convDiv[username="' + username + '"]');
-            if (selectConv.length == 0) {
-                selectConv = $('#templateDiv .convDiv').clone();
-                selectConv.attr('username', username);
-                selectConv.hide();
-                selectConv.insertBefore('.composeMessage');
-            }
-
-            return selectConv;
-        }
     </script>
 }

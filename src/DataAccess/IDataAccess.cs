@@ -12,5 +12,6 @@ namespace KMezzenger.DataAccess
         string[] get_your_buddies(string username);
         User get_user(string username);
         void create_user(string username, string hashpass, string salt);
+        void reset_password(string userName, string password, string salt);
     }
 }

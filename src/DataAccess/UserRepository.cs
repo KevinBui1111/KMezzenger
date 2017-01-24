@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.DirectoryServices;
+﻿using KMezzenger.Helper;
 using KMezzenger.Models;
+using System;
+using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Web.Security;
-using KMezzenger.Helper;
 
 namespace KMezzenger.DataAccess
 {
@@ -13,12 +11,6 @@ namespace KMezzenger.DataAccess
     {
         static IDataAccess dataAccess = new OraDataAccess();
 
-        static List<string> userList = new List<string>
-        {
-            "KevinBui",
-            "Khanh.BuiDang",
-            "Maika"
-        };
         internal static bool ValidateUser(string username, string password)
         {
             // check user exist in database.
@@ -79,6 +71,13 @@ namespace KMezzenger.DataAccess
         public static string[] get_your_buddies(string username)
         {
             return dataAccess.get_your_buddies(username);
+        }
+
+        internal static void reset_password(string userName, string password)
+        {
+            string salt = Password.GenerateSalt();
+            string hashpass = Password.EncodePassword(password, salt);
+            dataAccess.reset_password(userName, hashpass, salt);
         }
     }
 }

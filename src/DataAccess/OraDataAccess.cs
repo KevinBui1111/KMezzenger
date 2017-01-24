@@ -65,5 +65,16 @@ namespace KMezzenger.DataAccess
 
             DBUtilsOra.ExecuteNonQuerySP("CREATE_USER", listParameter, "CONN_KMESS");
         }
+
+        public void reset_password(string username, string hashpass, string salt)
+        {
+            List<OracleParameter> listParameter = new List<OracleParameter>() {
+                new OracleParameter("PARAM", username),
+                new OracleParameter("PARAM", hashpass),
+                new OracleParameter("PARAM", salt),
+            };
+
+            DBUtilsOra.ExecuteNonQuerySP("SET_PASSWORD", listParameter, "CONN_KMESS");
+        }
     }
 }

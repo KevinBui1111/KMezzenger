@@ -24,6 +24,7 @@ namespace KMezzenger.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.UserName = model.UserName.Trim().ToLower();
                 if (!UserRepository.ValidateUser(model.UserName, model.Password))
                 {
                     ViewBag.error = "Wrong username or password, please try again!";
@@ -56,7 +57,7 @@ namespace KMezzenger.Controllers
         [HttpPost]
         public ActionResult Register(LogOnModel model)
         {
-            model.UserName = model.UserName.Trim();
+            model.UserName = model.UserName.Trim().ToLower();
             if (UserRepository.check_user_exist(model.UserName))
             {
                 ViewBag.error = string.Format("Username [{0}] is already existed!", model.UserName);
@@ -65,6 +66,26 @@ namespace KMezzenger.Controllers
 
             UserRepository.create_user(model.UserName, model.Password);
             ViewBag.inform = string.Format("User [{0}] is created successfully, please login!", model.UserName);
+
+            return View("LogOn", model);
+        }
+
+        public ActionResult ResetPassword()
+        {
+            return View("Register");
+        }
+        [HttpPost]
+        public ActionResult ResetPassword(LogOnModel model)
+        {
+            model.UserName = model.UserName.Trim().ToLower();
+            if (!UserRepository.check_user_exist(model.UserName))
+            {
+                ViewBag.error = string.Format("Username [{0}] is not existed!", model.UserName);
+                return View("Register", model);
+            }
+
+            UserRepository.reset_password(model.UserName, model.Password);
+            ViewBag.inform = string.Format("Password was reset successfully for user [{0}], please login!", model.UserName);
 
             return View("LogOn", model);
         }
