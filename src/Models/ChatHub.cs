@@ -47,7 +47,7 @@ namespace KMezzenger.Models
 
             foreach (var connectionId in _connections.GetConnections(contacts))
             {
-                Clients.Client(connectionId).on_buddy_connect(new UserStatus { username = name, status = 1 });
+                Clients.Client(connectionId).on_buddy_status_changed(new UserStatus { username = name, status = 1 });
             }
 
             IEnumerable<UserStatus> userStatus = get_user_status(contacts);
@@ -64,7 +64,7 @@ namespace KMezzenger.Models
 
             foreach (var connectionId in _connections.GetConnections(contacts))
             {
-                Clients.Client(connectionId).on_buddy_connect(new UserStatus { username = name, status = 0 });
+                Clients.Client(connectionId).on_buddy_status_changed(new UserStatus { username = name, status = 0 });
             }
 
             return base.OnDisconnected();

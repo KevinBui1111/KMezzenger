@@ -129,6 +129,7 @@
     <Content Include="Content\Message.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\chat.js" />
     <Content Include="Scripts\common.js" />
     <Content Include="Scripts\datetime.js" />
     <Content Include="Scripts\jquery.signalR-1.1.4.js" />

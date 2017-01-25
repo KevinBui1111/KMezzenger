@@ -1,6 +1,7 @@
 ﻿var chat;
 var dicContact = {};
-//var dicMessageContent = {};
+var lastScrollFireTime = 0;
+var activeUser;
 
 $(document).ready(function () {
     $('#message').keyup(function (e) {
@@ -49,11 +50,12 @@ function on_receive_contacts(message) {
     });
 }
 function on_select_contact() {
-    var activeUser = $('.contact.selected .name_contact').html();
+    activeUser = $('.contact.selected .name_contact').html();
     var selectedUser = $(this).find('.name_contact').html();
 
     if (activeUser == selectedUser) return;
 
+    activeUser = selectedUser;
     var selectConv = get_content_message(selectedUser);
 
     $('.messDiv .convDiv').hide();
@@ -64,6 +66,8 @@ function on_select_contact() {
 
     $('.buddy_name').html(selectedUser);
     $('#message')[0].disabled = false;
+
+    check_message_show(selectConv);
 }
 function on_buddy_status_changed(buddy) {
     // Add the message to the page.
@@ -133,7 +137,33 @@ function get_content_message(username)
         selectConv.attr('username', username);
         selectConv.hide();
         selectConv.insertBefore('.composeMessage');
+
+        selectConv.scroll(on_sroll_message);
     }
 
     return selectConv;
+}
+function on_sroll_message() {
+    var now = new Date().getTime();
+    if (now - lastScrollFireTime > 300) {
+        var messDiv = $(this);
+        setTimeout(function () { check_message_show(messDiv); }, 300);
+        lastScrollFireTime = now;
+    }
+}
+function check_message_show(e) {
+    var mess = e.find('.leftFrame:last');
+    if (mess.length == 0) return;
+
+    if (isScrolledIntoView(e[0], mess[0])) {
+        var contact = dicContact[activeUser];
+        contact.data('unread_cnt', 0);
+        contact.find('.notify').html('');
+    }
+}
+function isScrolledIntoView(container, el) {
+    var elemPos = el.getBoundingClientRect();
+
+    var isVisible = (elemPos.top >= 0) && (elemPos.bottom <= container.getBoundingClientRect().bottom);
+    return isVisible;
 }

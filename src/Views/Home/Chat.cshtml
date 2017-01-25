@@ -111,8 +111,17 @@
 </style>
 }
 @section JS {
-    <script src="@Url.Content("~/Scripts/chat.js")"></script>
+    <script src="@Url.Content("~/Scripts/chat.js")" type="text/javascript"></script>
     <script type="text/javascript">
+        var isActive;
+        window.onfocus = function () {
+            isActive = true;
+        };
+
+        window.onblur = function () {
+            isActive = false;
+        };
+
         window.onbeforeunload = function () {
             return null;
         }
