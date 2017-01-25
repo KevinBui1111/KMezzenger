@@ -1,9 +1,29 @@
 ﻿var chat;
 var dicContact = {};
-var lastScrollFireTime = 0;
-var activeUser;
+var lastScrollFireTime = 0, lastNotifyTime = 0;
+var activeUser, top_username;
+
+var isActive;
+window.onfocus = function () {
+    isActive = true;
+    if (timer_notify_new_message)
+        clearInterval(timer_notify_new_message);
+};
+
+window.onblur = function () {
+    isActive = false;
+};
 
 $(document).ready(function () {
+    // request permission on page load
+    if (Notification.permission !== "granted")
+        Notification.requestPermission();
+
+    if (!Notification) {
+        alert('Desktop notifications not available in your browser. Try Chromium.'); 
+        return;
+    }
+
     $('#message').keyup(function (e) {
         if (e.ctrlKey || e.altKey || e.shiftKey) { }
         else if (e.keyCode == 13) {
@@ -84,6 +104,7 @@ function on_receive_message(message) {
     var div_content = get_content_message(message.from)
     div_content.append(mess);
 
+    top_username = message.from;
     var contact = dicContact[message.from];
     $('.contact_title').after(contact);
 
@@ -91,6 +112,11 @@ function on_receive_message(message) {
     contact.find('.notify').html(contact.data('unread_cnt'));
 
     scrollBottom(div_content);
+
+    if (!isActive) {
+        notify_new_message();
+        notifyMe(message.from, message.content);
+    }
 }
 function add_contact_to_list(username) {
     contact = $('#templateDiv .contact').clone().appendTo('#contact_list');
@@ -127,7 +153,8 @@ function htmlEncode(value) {
 }
 function scrollBottom(e)
 {
-    e.animate({ scrollTop: e.prop("scrollHeight") }, 1000);
+    //e.animate({ scrollTop: e.prop("scrollHeight") }, 1000);
+    e.scrollTop(e.prop("scrollHeight"));
 }
 function get_content_message(username)
 {
@@ -145,9 +172,9 @@ function get_content_message(username)
 }
 function on_sroll_message() {
     var now = new Date().getTime();
-    if (now - lastScrollFireTime > 300) {
+    if (now - lastScrollFireTime > 2000) {
         var messDiv = $(this);
-        setTimeout(function () { check_message_show(messDiv); }, 300);
+        setTimeout(function () { check_message_show(messDiv); }, 2000);
         lastScrollFireTime = now;
     }
 }
@@ -166,4 +193,34 @@ function isScrolledIntoView(container, el) {
 
     var isVisible = (elemPos.top >= 0) && (elemPos.bottom <= container.getBoundingClientRect().bottom);
     return isVisible;
+}
+
+var timer_notify_new_message;
+var tick = false;
+function notify_new_message() {
+    clearInterval(timer_notify_new_message);
+    timer_notify_new_message = setInterval(function () {
+        document.title = 'KMezzenger' + (tick ? ' - New message from ' + top_username : '');
+        tick = !tick;
+    }, 500);
+}
+
+
+function notifyMe(username, message) {
+    var now = new Date().getTime();
+    if (now - lastNotifyTime < 2000) return;
+
+    if (Notification.permission !== "granted")
+        Notification.requestPermission();
+    else {
+        var notification = new Notification('KMezzenger - ' + username, {
+            icon: 'http://iconshow.me/media/images/Application/Modern-Flat-style-Icons/png/512/Chat.png',
+            body: message
+        });
+
+        lastNotifyTime = now;
+
+        setTimeout(function() { notification.close(); }, 4000);
+    }
+
 }
