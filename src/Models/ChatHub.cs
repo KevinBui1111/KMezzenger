@@ -15,26 +15,46 @@ namespace KMezzenger.Models
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
 
-        public void send_message(string who, string message, DateTime date_sent, string message_id)
+        public MessageStatus send_message(string who, string message, DateTime date_sent, long client_message_id)
         {
             string myname = Context.User.Identity.Name;
             // check 'who' is exist ?
-            bool existWho = UserRepository.check_user_exist(who);
-            if (!existWho)
-            {
-                Clients.Caller.on_result_send_message(message_id, 0, "No one named " + who);
-                return;
-            }
-
-            foreach (var connectionId in _connections.GetConnections(who))
-            {
-                Clients.Client(connectionId).on_receive_message(new Message { from = myname, content = message, date_sent = DateTime.Now });
-            }
+            User user_to = UserRepository.get_user(who);
+            if (user_to == null)
+                return new MessageStatus { message = "No one named " + who, client_message_id = client_message_id, status = -1 };
 
             //save message to database
-            UserRepository.save_message(myname, who, message, date_sent, message_id);
-            // response success to client.
-            Clients.Caller.on_result_send_message(message_id, 1);
+            long message_id = UserRepository.save_message(myname, who, message, date_sent, client_message_id);
+            var message_object = new Message
+            {
+                message_id = message_id,
+                client_message_id = client_message_id,
+                from = myname,
+                content = message,
+                date_sent = date_sent
+            };
+            bool is_sent = false;
+            foreach (var connectionId in _connections.GetConnections(who))
+            {
+                Clients.Client(connectionId).on_receive_message(message_object);
+                is_sent = true;
+            }
+
+            if (is_sent)
+                UserRepository.update_message_user(message_id, user_to.user_id, date_sent, 1);
+
+            return new MessageStatus { client_message_id = client_message_id, status = 0 };
+        }
+        public void received_message(Message message)
+        {
+            User user_to = UserRepository.get_user(Context.User.Identity.Name);
+
+            UserRepository.update_message_user(message.message_id, user_to.user_id, message.date_received, 2);
+
+            foreach (var connectionId in _connections.GetConnections(message.from))
+            {
+                Clients.Client(connectionId).on_deliveried_message(new MessageStatus { client_message_id = message.client_message_id, status = 1 });
+            }
         }
 
         public override Task OnConnected()
@@ -50,8 +70,16 @@ namespace KMezzenger.Models
                 Clients.Client(connectionId).on_buddy_status_changed(new UserStatus { username = name, status = 1 });
             }
 
+            // GET Buddies status
             IEnumerable<UserStatus> userStatus = get_user_status(contacts);
             Clients.Caller.on_receive_contacts(userStatus);
+
+            // get new message
+            Message[] messages = UserRepository.get_new_message(name);
+            foreach (var message_object in messages)
+            {
+                Clients.Caller.on_receive_message(message_object);
+            }
 
             return base.OnConnected();
         }

@@ -1,71 +1,80 @@
 .messDiv
 {
-    float:right;
+    float: right;
 }
 .convDiv
 {
     
-    width:600px;
-    max-height:500px;
-    overflow-y:auto;
+    width: 37em;
+    max-height: 40em;
+    overflow-y: auto;
     text-shadow: 0px 0px 1px rgba(0,0,0,.5);
-    font-size:1em;    
+    font-size: 1em;    
 }
 
 .convDiv > div
 {
-    margin-bottom:10px;   
+    margin-bottom:.5em;   
 }
 
 .convDiv > div > div
 {
-    display:inline-block;
+    display: inline-block;
 }
 
 .rightFrame
 {
-    text-align:right;    
+    text-align: right;    
 }
 
 .roundDiv
 {
-    border-radius: 5px;
-    padding:4px 8px 8px 8px;
-    text-align:left;
-    max-width:370px;   
-    vertical-align:middle;  
+    word-break: break-word;
+    position: relative;
+    border-radius: .3em;
+    padding: .3em 1em .6em .6em;
+    text-align: left;
+    max-width: 23em;   
+    vertical-align:middle;
+    min-width: 2em;
 }
 
 .Corner
 {
-    vertical-align:top;
-    margin-top:5px;
-    width:10px;
-    height:10px;
+    vertical-align: top;
+    margin-top: .3em;
 }
 
 .leftCorner
 {
-    background: url("p_d.png") no-repeat;
+    border-top: .6em solid #FEE0EF;
+    border-left: .6em solid transparent;
 }
 .rightCorner
 {
-    background: url("b_d.png") no-repeat;
+    border-top: .6em solid #BAE3FF;
+    border-right: .6em solid transparent;
 }
 .pink
 {
-    background-color:#FEE0EF;
+    background-color: #FEE0EF;
 }
 
 .blue
 {
-    background-color:#BAE3FF;
+    background-color: #BAE3FF;
 }
-
+.mess-status {
+    position: absolute;
+    right:  .3em;
+    bottom: .2em;
+    font-size: .7em;
+    color: gray;
+}
 .time
 {
-    color:Gray;
-    font-size:0.7em;
+    color: Gray;
+    font-size: 0.7em;
 }
 .gps
 {

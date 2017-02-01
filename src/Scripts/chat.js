@@ -1,11 +1,13 @@
 ﻿var chat;
 var dicContact = {};
+var dicMessage = {};
 var lastScrollFireTime = 0, lastNotifyTime = 0;
 var activeUser, top_username;
 
-var isActive;
+var isActive = true;
 window.onfocus = function () {
     isActive = true;
+    check_message_show(get_content_message(activeUser));
     if (timer_notify_new_message)
         clearInterval(timer_notify_new_message);
 };
@@ -15,14 +17,21 @@ window.onblur = function () {
 };
 
 $(document).ready(function () {
+    if (typeof Notification === "undefined") {
+        alert('Desktop notifications not available in your browser. Try Chromium.');
+        return;
+    }
+
     // request permission on page load
     if (Notification.permission !== "granted")
         Notification.requestPermission();
 
-    if (!Notification) {
-        alert('Desktop notifications not available in your browser. Try Chromium.'); 
-        return;
+    window.onbeforeunload = function () {
+        $.connection.hub.stop();
     }
+    $("a").click(function () {
+        $.connection.hub.stop();
+    });
 
     $('#message').keyup(function (e) {
         if (e.ctrlKey || e.altKey || e.shiftKey) { }
@@ -39,7 +48,7 @@ $(document).ready(function () {
     chat.client.on_buddy_status_changed = on_buddy_status_changed;
     // Create a function that the hub can call back to notify list of contact.
     chat.client.on_receive_contacts = on_receive_contacts;
-    chat.client.on_result_send_message = on_result_send_message;
+    chat.client.on_deliveried_message = on_response_send_message;
 
     // Get the user name and store it to prepend to messages.
     //$('#displayname').val(prompt('Enter your name:', ''));
@@ -60,9 +69,6 @@ function notifyUserOfTryingToReconnect() {
     console.log('trying to reconnect');
 }
 
-function on_result_send_message(message_id, result, error) {
-            
-}
 function on_receive_contacts(message) {
     //$('#contact_list .contact').remove();
     $.each(message, function (index, value) {
@@ -111,12 +117,15 @@ function on_receive_message(message) {
     contact.data('unread_cnt', contact.data('unread_cnt') + 1);
     contact.find('.notify').html(contact.data('unread_cnt'));
 
-    scrollBottom(div_content);
+    if (isActive) scrollBottom(div_content);
 
     if (!isActive) {
         notify_new_message();
         notifyMe(message.from, message.content);
     }
+
+    message.date_received = new Date;
+    chat.server.received_message(message);
 }
 function add_contact_to_list(username) {
     contact = $('#templateDiv .contact').clone().appendTo('#contact_list');
@@ -136,15 +145,27 @@ function send_message() {
         return;
     }
     // Call the Send method on the hub.
-    chat.server.send_message(who, message, new Date(), 1);
+    var time_sent = new Date;
+    chat.server.send_message(who, message, time_sent, +time_sent).done(on_response_send_message);
     // Clear text box and reset focus for next comment. 
     $('#message').val('').focus();
 
-    var mess = $('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), htmlEncode(message));
+    var mess = $($('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), htmlEncode(message)));
     var div_content = get_content_message(who)
     div_content.append(mess);
+    dicMessage[+time_sent] = mess;
 
     scrollBottom(div_content);
+}
+function on_response_send_message(message) {
+    switch (message.status) {
+        case 0: // sent
+            dicMessage[message.client_message_id].find('.mess-status').html('');
+            break;
+        case 1: // received
+            dicMessage[message.client_message_id].find('.mess-status').html('✔');
+            break;
+    }
 }
 // This optional function html-encodes messages for display in the page.
 function htmlEncode(value) {

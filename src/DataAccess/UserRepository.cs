@@ -52,6 +52,11 @@ namespace KMezzenger.DataAccess
             }
         }
 
+        internal static void update_message_user(long message_id, int user_id, DateTime now, int status)
+        {
+            dataAccess.update_message_user(message_id, user_id, now, status);
+        }
+
         internal static void create_user(string username, string password)
         {
             string salt = Password.GenerateSalt();
@@ -64,7 +69,7 @@ namespace KMezzenger.DataAccess
             return dataAccess.get_user(username) != null;
         }
 
-        public static int save_message(string from, string to, string message, DateTime date_sent, string message_id)
+        public static long save_message(string from, string to, string message, DateTime date_sent, long message_id)
         {
             return dataAccess.save_message(from, to, message, date_sent, message_id);
         }
@@ -78,6 +83,16 @@ namespace KMezzenger.DataAccess
             string salt = Password.GenerateSalt();
             string hashpass = Password.EncodePassword(password, salt);
             dataAccess.reset_password(userName, hashpass, salt);
+        }
+
+        internal static Message[] get_new_message(string username)
+        {
+            return dataAccess.get_new_message(username);
+        }
+
+        internal static User get_user(string username)
+        {
+            return dataAccess.get_user(username);
         }
     }
 }

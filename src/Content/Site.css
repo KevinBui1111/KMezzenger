@@ -14,12 +14,12 @@ a:link, a:visited {
 }
 #main {
     background-color: White;
-    padding: 10px;
+    padding: 1em;
 }
 .header {
     background-color: dodgerblue;
     color: white;
-    padding: 5px;
+    padding: .5em;
 }
 .header a {
     color: white;
@@ -42,8 +42,9 @@ a:link, a:visited {
 
 input[type="text"], input[type="password"], select, textarea {
 	font-family:inherit;
+    font-size: .85em;
 	border: solid 1px #D8D8D8;
-	padding: 4px;
+	padding: .3em;
 }
 input[type="button"], input[type="submit"] {
 	font-family:inherit;
