@@ -9,6 +9,7 @@ namespace KMezzenger.DataAccess
 {
     public class UserRepository
     {
+        const string PASS_ENCRYPT = "4221518596198354";
         static IDataAccess dataAccess = new OraDataAccess();
 
         internal static bool ValidateUser(string username, string password)
@@ -71,6 +72,7 @@ namespace KMezzenger.DataAccess
 
         public static long save_message(string from, string to, string message, DateTime date_sent, long message_id)
         {
+            message = Crypto.EncryptStringAES(message, PASS_ENCRYPT);
             return dataAccess.save_message(from, to, message, date_sent, message_id);
         }
         public static string[] get_your_buddies(string username)
@@ -87,7 +89,12 @@ namespace KMezzenger.DataAccess
 
         internal static Message[] get_new_message(string username)
         {
-            return dataAccess.get_new_message(username);
+            Message[] messList = dataAccess.get_new_message(username);
+            foreach (Message m in messList)
+            {
+                m.content = Crypto.DecryptStringAES(m.content, PASS_ENCRYPT);
+            }
+            return messList;
         }
 
         internal static User get_user(string username)
