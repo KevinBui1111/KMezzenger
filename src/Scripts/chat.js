@@ -3,11 +3,14 @@ var dicContact = {};
 var dicMessage = {};
 var lastScrollFireTime = 0, lastNotifyTime = 0;
 var activeUser, top_username;
+var notify_message_on = true;
 
 var isActive = true;
 window.onfocus = function () {
     isActive = true;
-    check_message_show(get_content_message(activeUser));
+    if (activeUser)
+        check_message_show(get_content_message(activeUser));
+
     if (timer_notify_new_message)
         clearInterval(timer_notify_new_message);
 };
@@ -19,11 +22,10 @@ window.onblur = function () {
 $(document).ready(function () {
     if (typeof Notification === "undefined") {
         alert('Desktop notifications not available in your browser. Try Chromium.');
-        return;
+        //return;
     }
-
     // request permission on page load
-    if (Notification.permission !== "granted")
+    else if (Notification.permission !== "granted")
         Notification.requestPermission();
 
     window.onbeforeunload = function () {
@@ -229,7 +231,7 @@ function notify_new_message() {
 
 function notifyMe(username, message) {
     var now = new Date().getTime();
-    if (now - lastNotifyTime < 2000) return;
+    if (now - lastNotifyTime < 2000 || !notify_message_on) return;
 
     if (Notification.permission !== "granted")
         Notification.requestPermission();
@@ -244,4 +246,9 @@ function notifyMe(username, message) {
         setTimeout(function() { notification.close(); }, 4000);
     }
 
+}
+
+function toggle_notify() {
+    $("div.notify_message").toggleClass("notify_message_off");
+    notify_message_on = !notify_message_on;
 }

@@ -34,8 +34,12 @@
 </div>
 
 <div class="messDiv">
-    <div class='buddy_name'></div>
-
+    <div class="mess_header clearfix">
+        <div class='buddy_name'></div>
+        <div class='mess_config'>
+            <div class='icon32 notify_message' onclick='toggle_notify();'></div>
+        </div>
+    </div>
 
     <div class='composeMessage'>
         <textarea id="message" rows='2' disabled></textarea>
@@ -102,13 +106,27 @@
     {
         vertical-align:middle;
     }
-    .buddy_name 
+    .mess_header 
     {
         font-size: 2em;
         border-bottom: 1px solid grey;
         margin-bottom: 15px;
         padding: 5px;
     }
+    .mess_header div
+    {
+        display:inline-block;
+    }
+    .icon32
+    {
+        width:32px;
+        height:32px;
+    }
+    .mess_config
+    {
+        float: right;
+    }
+        
 </style>
 }
 @section JS {

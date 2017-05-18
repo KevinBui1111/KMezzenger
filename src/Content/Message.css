@@ -84,3 +84,19 @@
     vertical-align:middle;
     display:inline-block;
 }
+.notify_message 
+{
+    background: url("notifications-on.png") no-repeat;
+}
+.notify_message:hover
+{
+    background: url("notifications-off.png") no-repeat;
+}
+.notify_message_off
+{
+    background: url("notifications-off.png") no-repeat;
+}
+.notify_message_off:hover
+{
+    background: url("notifications-on.png") no-repeat;
+}
