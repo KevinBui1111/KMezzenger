@@ -7,9 +7,21 @@
 </head>
 
 <body>
+  <div id="wrapDiv">
     @Html.Partial("header")
     <div id="main" class="clearfix">
         @RenderBody()
+    </div>
+  </div>
+
+    <div id="loadingDiv" class="overlay">
+        <div style="position:absolute; top:5em; left:40%;
+                    background-color: rgba(30, 144, 255, 0.2);
+                    padding: 1em;
+                    border-radius: 1em;">
+            <img src="https://maxcdn.icons8.com/Color/PNG/48/Business/high_priority-48.png" title="High Priority" width="48" height="48">
+            <strong>Lost connection! Please refresh the page.</strong>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>

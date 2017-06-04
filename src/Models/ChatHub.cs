@@ -6,6 +6,7 @@ using Microsoft.AspNet.SignalR;
 using System.Collections;
 using System.Threading.Tasks;
 using KMezzenger.DataAccess;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace KMezzenger.Models
 {
@@ -122,6 +123,16 @@ namespace KMezzenger.Models
             }
 
             return user.Identity.IsAuthenticated;
+        }
+    }
+
+    public class MyHubPipelineModule : HubPipelineModule
+    {
+        protected override void OnIncomingError(Exception ex,
+                                                IHubIncomingInvokerContext invokerContext)
+        {
+            dynamic caller = invokerContext.Hub.Clients.Caller;
+            caller.on_exception_handler(ex.Message);
         }
     }
 }

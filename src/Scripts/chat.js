@@ -4,6 +4,7 @@ var dicMessage = {};
 var lastScrollFireTime = 0, lastNotifyTime = 0;
 var activeUser, top_username;
 var notify_message_on = true;
+var tryingToReconnect = false;
 
 var isActive = true;
 window.onfocus = function () {
@@ -51,6 +52,7 @@ $(document).ready(function () {
     // Create a function that the hub can call back to notify list of contact.
     chat.client.on_receive_contacts = on_receive_contacts;
     chat.client.on_deliveried_message = on_response_send_message;
+    chat.client.on_exception_handler = on_exception_handler;
 
     // Get the user name and store it to prepend to messages.
     //$('#displayname').val(prompt('Enter your name:', ''));
@@ -60,13 +62,26 @@ $(document).ready(function () {
     $.connection.hub.qs = { 'username': $('#displayname').val() };
     $.connection.hub.start().done(onConnected);
 
-    var tryingToReconnect = false;
-    $.connection.hub.reconnecting(function () { tryingToReconnect = true; });
-    $.connection.hub.reconnected(function () { tryingToReconnect = false; });
+    $.connection.hub.reconnecting(on_reconnecting);
+    $.connection.hub.reconnected(on_reconnected);
     $.connection.hub.disconnected(function () {
-        setTimeout(function () { $.connection.hub.start(); }, 5000); // Restart connection after 5 seconds.
+        //setTimeout(function () { $.connection.hub.start(); }, 5000); // Restart connection after 5 seconds.
     });
 });
+function on_exception_handler(error) {
+    console.log('SignalrAdapter: ' + error);
+}
+function on_reconnecting() {
+    if (tryingToReconnect) return;
+
+    tryingToReconnect = true;
+    ShowLoading();
+}
+function on_reconnected() {
+    tryingToReconnect = false;
+    HideLoading();
+}
+
 function notifyUserOfTryingToReconnect() {
     console.log('trying to reconnect');
 }
@@ -148,7 +163,9 @@ function send_message() {
     }
     // Call the Send method on the hub.
     var time_sent = new Date;
-    chat.server.send_message(who, message, time_sent, +time_sent).done(on_response_send_message);
+    chat.server.send_message(who, message, time_sent, +time_sent)
+        .done(on_response_send_message)
+        .fail(on_fail_send_message);
     // Clear text box and reset focus for next comment. 
     $('#message').val('').focus();
 
@@ -168,6 +185,9 @@ function on_response_send_message(message) {
             dicMessage[message.client_message_id].find('.mess-status').html('✔');
             break;
     }
+}
+function on_fail_send_message(error) {
+    console.log(error);
 }
 // This optional function html-encodes messages for display in the page.
 function htmlEncode(value) {

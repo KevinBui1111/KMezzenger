@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Microsoft.AspNet.SignalR;
+using KMezzenger.Models;
 
 namespace KMezzenger
 {
@@ -32,8 +33,11 @@ namespace KMezzenger
 
         protected void Application_Start()
         {
-            RouteTable.Routes.MapHubs();
-            //GlobalHost.HubPipeline.RequireAuthentication();
+            GlobalHost.HubPipeline.RequireAuthentication();
+            GlobalHost.HubPipeline.AddModule(new MyHubPipelineModule());
+            var hubConfiguration = new HubConfiguration { EnableDetailedErrors = true };
+            //app.MapSignalR(hubConfiguration);
+            RouteTable.Routes.MapHubs(hubConfiguration);
 
             AreaRegistration.RegisterAllAreas();
 

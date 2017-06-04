@@ -12,6 +12,10 @@ a:link, a:visited {
     color: RoyalBlue;
     text-decoration: none;
 }
+img 
+{
+    vertical-align:middle;
+}
 #main {
     background-color: White;
     padding: 1em;
@@ -65,4 +69,19 @@ span.error {
 }
 span.inform {
     color: dodgerblue;
+}
+.blur 
+{
+    filter: blur(2px);
+    
+}
+div.overlay {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height:100%;
+    
+    display:none;
+    z-index: 20000;
 }

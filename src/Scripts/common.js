@@ -59,3 +59,13 @@ function clearFileInput(oldInput) {
 function decodeHTML(e) {
     return $("<div/>").html(e).text();
 }
+
+function ShowLoading() {
+    $('#loadingDiv').show();
+    $('#loadingDiv strong').after('<p>' + formatDate(new Date, 'dd-MM-yyyy HH:mm') + '</p>');
+    $("#wrapDiv").toggleClass('blur');
+}
+function HideLoading() {
+    $('#loadingDiv').hide();
+    $("#wrapDiv").toggleClass('blur');
+}
