@@ -55,7 +55,11 @@ function post_to_url(path, params) {
 function clearFileInput(oldInput) {
     $(oldInput).replaceWith($(oldInput).clone());
 }
-
+// This optional function html-encodes messages for display in the page.
+function htmlEncode(value) {
+    var encodedValue = $('<div />').text(value).html();
+    return encodedValue;
+}
 function decodeHTML(e) {
     return $("<div/>").html(e).text();
 }

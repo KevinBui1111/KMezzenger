@@ -10,9 +10,9 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using System.Collections.Generic;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using System.Reflection;
-using Oracle.DataAccess.Types;
+using Oracle.ManagedDataAccess.Types;
 using System.IO;
 using System.ComponentModel;
 

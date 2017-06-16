@@ -71,7 +71,9 @@
       <HintPath>packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Oracle.DataAccess, Version=4.112.3.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=x86" />
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>packages\Oracle.ManagedDataAccess.12.2.1100\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
@@ -109,6 +111,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DataAccess\OraDataAccess.cs" />
+    <Compile Include="Helper\AhoCorasick.cs" />
     <Compile Include="Helper\DBUtilsOra.cs" />
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="DataAccess\IDataAccess.cs" />
@@ -116,6 +119,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\MessageHandler.cs" />
     <Compile Include="Helper\Password.cs" />
     <Compile Include="Models\ChatHub.cs" />
     <Compile Include="Models\ConnectionMapping.cs" />
@@ -126,11 +130,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\emoticon_list.txt" />
     <Content Include="Content\Message.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\chat.js" />
     <Content Include="Scripts\common.js" />
+    <Content Include="Scripts\aho-corasick.js" />
     <Content Include="Scripts\datetime.js" />
     <Content Include="Scripts\jquery.signalR-1.1.4.js" />
     <Content Include="Web.config" />

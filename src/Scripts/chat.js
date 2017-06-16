@@ -7,6 +7,10 @@ var notify_message_on = true;
 var tryingToReconnect = false;
 
 var isActive = true;
+
+var aho_corasick;
+var dic_emoticons = {};
+
 window.onfocus = function () {
     isActive = true;
     if (activeUser)
@@ -36,10 +40,17 @@ $(document).ready(function () {
         $.connection.hub.stop();
     });
 
+    $('#message').keypress(function (e) {
+        if (e.ctrlKey || e.altKey || e.shiftKey) { }
+        else if (e.keyCode == 13) {
+            e.preventDefault();
+        }
+    });
     $('#message').keyup(function (e) {
         if (e.ctrlKey || e.altKey || e.shiftKey) { }
         else if (e.keyCode == 13) {
             $("#sendmessage").click();
+            console.log("send");
         }
     });
     $('#contact_list').on('click', '.contact', on_select_contact);
@@ -67,7 +78,24 @@ $(document).ready(function () {
     $.connection.hub.disconnected(function () {
         //setTimeout(function () { $.connection.hub.start(); }, 5000); // Restart connection after 5 seconds.
     });
+
+    //load emoticons
+    var emoticons_string = $.get('../Content/emoticon_list.txt', on_load_emoticons);
 });
+function on_load_emoticons(data) {
+    var keywords = [];
+
+    data.split('\r\n').forEach(function (line) {
+        line.split('\t').forEach(function (item, index, arr) {
+            if (item && index) {
+                dic_emoticons[item] = arr[0];
+                keywords.push(item);
+            }
+        });
+    });
+    aho_corasick = new AhoCorasick(true, keywords);
+}
+
 function on_exception_handler(error) {
     console.log('SignalrAdapter: ' + error);
 }
@@ -123,7 +151,7 @@ function on_buddy_status_changed(buddy) {
 }
 function on_receive_message(message) {
     // Add the message to the page. 
-    var mess = $('#templateDiv .leftFrame')[0].outerHTML.format(formatDate(new Date(message.date_sent), "hh:mm tt"), htmlEncode(message.content));
+    var mess = $('#templateDiv .leftFrame')[0].outerHTML.format(formatDate(new Date(message.date_sent), "hh:mm tt"), message.content);
     var div_content = get_content_message(message.from)
     div_content.append(mess);
 
@@ -169,7 +197,7 @@ function send_message() {
     // Clear text box and reset focus for next comment. 
     $('#message').val('').focus();
 
-    var mess = $($('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), htmlEncode(message)));
+    var mess = $($('#templateDiv .rightFrame')[0].outerHTML.format(formatDate(new Date(), "hh:mm tt"), replace_with_emo(message)));
     var div_content = get_content_message(who)
     div_content.append(mess);
     dicMessage[+time_sent] = mess;
@@ -189,11 +217,7 @@ function on_response_send_message(message) {
 function on_fail_send_message(error) {
     console.log(error);
 }
-// This optional function html-encodes messages for display in the page.
-function htmlEncode(value) {
-    var encodedValue = $('<div />').text(value).html();
-    return encodedValue;
-}
+
 function scrollBottom(e)
 {
     //e.animate({ scrollTop: e.prop("scrollHeight") }, 1000);
@@ -271,4 +295,36 @@ function notifyMe(username, message) {
 function toggle_notify() {
     $("div.notify_message").toggleClass("notify_message_off");
     notify_message_on = !notify_message_on;
+}
+
+function replace_with_emo(message) {
+    var matches = aho_corasick.search(message)
+
+    matches.sort(function (x, y) {
+        var ret = x.position - y.position;
+        if (ret == 0)
+            ret = y.keyword.length - x.keyword.length;
+        return ret;
+    });
+
+    var position = 0;
+    var process_mess = '';
+    for (var i = 0, m = ''; m = matches[i]; ++i) {
+        var len_before = m.position - position;
+        if (len_before < 0)
+            continue;
+        else if (len_before > 0)
+        {
+            var before = message.substr(position, len_before);
+            // encode html, then append
+            process_mess += htmlEncode(before);
+        }
+        // replace emo code by <img> tag
+        process_mess += "<img src='" + baseUrl + dic_emoticons[m.keyword] + "'/>";
+        position = m.position + m.keyword.length;
+    }
+    if (position < message.length)
+        process_mess += message.substr(position, message.length - position);
+
+    return process_mess;
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using KMezzenger.Models;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using HCVN.Helpers;
-using Oracle.DataAccess.Types;
+using Oracle.ManagedDataAccess.Types;
 
 namespace KMezzenger.DataAccess
 {

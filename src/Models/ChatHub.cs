@@ -7,6 +7,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using KMezzenger.DataAccess;
 using Microsoft.AspNet.SignalR.Hubs;
+using KMezzenger.Helper;
 
 namespace KMezzenger.Models
 {
@@ -37,6 +38,8 @@ namespace KMezzenger.Models
             bool is_sent = false;
             foreach (var connectionId in _connections.GetConnections(who))
             {
+                message_object.content = MessageHandler.replace_with_emo(message_object.content);
+
                 Clients.Client(connectionId).on_receive_message(message_object);
                 is_sent = true;
             }
@@ -79,6 +82,8 @@ namespace KMezzenger.Models
             Message[] messages = UserRepository.get_new_message(name);
             foreach (var message_object in messages)
             {
+                message_object.content = MessageHandler.replace_with_emo(message_object.content);
+
                 Clients.Caller.on_receive_message(message_object);
             }
 
