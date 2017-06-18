@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Microsoft.AspNet.SignalR;
 using KMezzenger.Models;
+using KMezzenger.Controllers;
+using System.Web.Security;
 
 namespace KMezzenger
 {
@@ -44,5 +43,16 @@ namespace KMezzenger
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
         }
+
+        protected void Application_PreRequestHandlerExecute(object sender, EventArgs e)
+        {
+            if (/*HttpContext.Current.Session != null &&*/ AccountController.ForceLogoutUser.ContainsKey(User.Identity.Name))
+            {
+                //HttpContext.Current.Session.Abandon();
+                FormsAuthentication.SignOut();
+                //HttpContext.Current.Response.Redirect("~/Home");
+            }
+        }
+
     }
 }

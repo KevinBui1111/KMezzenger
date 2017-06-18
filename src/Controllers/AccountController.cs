@@ -8,6 +8,17 @@ namespace KMezzenger.Controllers
 {
     public class AccountController : Controller
     {
+        public static ViewDataDictionary _forceLogoutUser;
+        public static ViewDataDictionary ForceLogoutUser
+        {
+            get
+            {
+                if (_forceLogoutUser == null)
+                    _forceLogoutUser = new ViewDataDictionary();
+                return _forceLogoutUser;
+            }
+        }
+
         public ActionResult LogOn(string returnUrl)
         {
             if (Request.IsAjaxRequest())
@@ -29,6 +40,7 @@ namespace KMezzenger.Controllers
                 }
 
                 FormsAuthentication.SetAuthCookie(model.UserName, true);
+                ForceLogoutUser.Remove(model.UserName);
 
                 if (!String.IsNullOrEmpty(returnUrl))
                     return Redirect(returnUrl);
@@ -86,5 +98,14 @@ namespace KMezzenger.Controllers
 
             return View("LogOn", model);
         }
+
+        public ActionResult ForceUserLogout(string username)
+        {
+            ForceLogoutUser[username] = true;
+
+            ViewBag.inform = string.Format("Force user [{0}] logout successful!", username);
+            return RedirectToAction("Index", "Home");
+        }
+
     }
 }

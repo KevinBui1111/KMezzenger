@@ -22,10 +22,10 @@ namespace KMezzenger.Helper
                 while (!sr.EndOfStream)
                 {
                     string[] emo = sr.ReadLine().Split('\t');
-                    for (int i = 1; i < emo.Length; ++i)
+                    for (int i = 2; i < emo.Length; ++i)
                     {
                         if (!string.IsNullOrEmpty(emo[i]))
-                            dicEmoticons[emo[i].ToLower()] = emo[0];
+                            dicEmoticons[emo[i].ToLower()] = emo[1];
                     }
                 }
             }

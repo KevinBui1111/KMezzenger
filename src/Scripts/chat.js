@@ -10,6 +10,7 @@ var isActive = true;
 
 var aho_corasick;
 var dic_emoticons = {};
+var arr_emo = [];
 
 window.onfocus = function () {
     isActive = true;
@@ -22,6 +23,11 @@ window.onfocus = function () {
 
 window.onblur = function () {
     isActive = false;
+};
+window.onclick = function (event) {
+    if (!$(event.target).is('#btn_emoticon, #emoticon_list, #emoticon_list *')) {
+        hide_emoticon_list();
+    }
 };
 
 $(document).ready(function () {
@@ -53,6 +59,7 @@ $(document).ready(function () {
             console.log("send");
         }
     });
+
     $('#contact_list').on('click', '.contact', on_select_contact);
     // Reference the auto-generated proxy for the hub.  
     chat = $.connection.chatHub;
@@ -85,15 +92,36 @@ $(document).ready(function () {
 function on_load_emoticons(data) {
     var keywords = [];
 
-    data.split('\r\n').forEach(function (line) {
-        line.split('\t').forEach(function (item, index, arr) {
-            if (item && index) {
-                dic_emoticons[item] = arr[0];
+    data.split('\r\n').forEach(function (line, l_index) {
+        var emo = line.split('\t');
+        var emo_keys = [];
+        emo.forEach(function (item, index) {
+            if (item && index > 1) {
+                item = item.toLowerCase();
+                dic_emoticons[item] = emo[1];
                 keywords.push(item);
+                emo_keys.push(item);
             }
         });
+
+        arr_emo[emo[0]] = { path: emo[1], key: emo_keys };
     });
+
+    // build #emoticon_list DOM
+    var emoj_il = '';
+    arr_emo.forEach(function (item, index) {
+        emoj_il += "<li><img data-index='" + index + "' src='" + baseUrl + item.path + "' onmouseover='on_over_emoticon(" + index + ");' onclick='insert_emoticon(" + index + ");' /></li>\n";
+    });
+    $('#emoticon_list ul').html(emoj_il);
+
     aho_corasick = new AhoCorasick(true, keywords);
+}
+function insert_emoticon(index) {
+    $('#message').insertAtCaret(arr_emo[index].key[0]);
+}
+function on_over_emoticon(index) {
+    $('.key_emoticon').html(arr_emo[index].key.join(" "));
+    //console.log(arr_emo[index].key);
 }
 
 function on_exception_handler(error) {
@@ -207,7 +235,7 @@ function send_message() {
 function on_response_send_message(message) {
     switch (message.status) {
         case 0: // sent
-            dicMessage[message.client_message_id].find('.mess-status').html('');
+            dicMessage[message.client_message_id].find('.mess-status').html('➜');
             break;
         case 1: // received
             dicMessage[message.client_message_id].find('.mess-status').html('✔');
@@ -291,7 +319,6 @@ function notifyMe(username, message) {
     }
 
 }
-
 function toggle_notify() {
     $("div.notify_message").toggleClass("notify_message_off");
     notify_message_on = !notify_message_on;
@@ -328,3 +355,37 @@ function replace_with_emo(message) {
 
     return process_mess;
 }
+
+function show_emoticon_list() {
+    $('#emoticon_list').show();
+}
+function hide_emoticon_list() {
+    $('#emoticon_list').hide();
+}
+jQuery.fn.extend({
+    insertAtCaret: function (myValue) {
+        return this.each(function (i) {
+            if (document.selection) {
+                //For browsers like Internet Explorer
+                this.focus();
+                var sel = document.selection.createRange();
+                sel.text = myValue;
+                this.focus();
+            }
+            else if (this.selectionStart || this.selectionStart == '0') {
+                //For browsers like Firefox and Webkit based
+                var startPos = this.selectionStart;
+                var endPos = this.selectionEnd;
+                var scrollTop = this.scrollTop;
+                this.value = this.value.substring(0, startPos) + myValue + this.value.substring(endPos, this.value.length);
+                this.focus();
+                this.selectionStart = startPos + myValue.length;
+                this.selectionEnd = startPos + myValue.length;
+                this.scrollTop = scrollTop;
+            } else {
+                this.value += myValue;
+                this.focus();
+            }
+        });
+    }
+});
