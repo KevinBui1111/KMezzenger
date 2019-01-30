@@ -32,7 +32,7 @@ namespace KMezzenger.Helper
 
             // build trie
             trieFSM = new AhoCorasick(true, dicEmoticons.Keys.ToArray());
-            baseUrlEmotion = HttpRuntime.AppDomainAppVirtualPath + "Content/Emoticons/";
+            baseUrlEmotion = Path.Combine(HttpRuntime.AppDomainAppVirtualPath, "Content/Emoticons/");
         }
         internal static string replace_with_emo(string message)
         {
